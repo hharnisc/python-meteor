@@ -2,6 +2,8 @@ import time
 import datetime
 from DDPClient import DDPClient
 
+from pyee import EventEmitter
+
 class MeteorClientException(Exception):
     """Custom Exception"""
     pass
@@ -28,19 +30,28 @@ class CollectionData(object):
     def remove_data(self, collection, id):
         del self.data[collection][id]
 
-class MeteorClient(object):
+class MeteorClient(EventEmitter):
     def __init__(self, url, debug=False):
+        EventEmitter.__init__(self)
         self.collection_data = CollectionData()
         self.ddp_client = DDPClient(url, debug)
         self.ddp_client.on('connected', self.connected)
         self.ddp_client.on('socket_closed', self.closed)
         self.ddp_client.on('failed', self.failed)
-        self.ddp_client.on('added', self.collection_data.add_data)
-        self.ddp_client.on('changed', self.collection_data.change_data)
-        self.ddp_client.on('removed', self.collection_data.remove_data)
+        self.ddp_client.on('added', self.added)
+        self.ddp_client.on('changed', self.changed)
+        self.ddp_client.on('removed', self.removed)
         self.connected = False
         self.ddp_client.connect()
         self.subscriptions = {}
+
+    #
+    # Meteor Method Call
+    #
+
+    def call(self, method, params, callback=None):
+        self._wait_for_connect()
+        self.ddp_client.call(method, params, callback=callback)
 
     #
     # Subscription Management
@@ -54,19 +65,16 @@ class MeteorClient(object):
 
         Keyword Arguments:
         callback - a function callback that returns an error (if exists)"""
-        start = datetime.datetime.now()
-        while not self.connected and self._time_from_start(start).seconds < 5:
-            time.sleep(0.1)
-
-        if not self.connected:
-            raise MeteorClientException('Could not subscribe because a connection has not been established')
+        self._wait_for_connect()
 
         def subscribed(error, sub_id):
             if error:
                 self._remove_sub_by_id(sub_id)
-                callback(error.get('reason'))
+                if callback:
+                    callback(error.get('reason'))
                 return
-            callback(None)
+            if callback:
+                callback(None)
 
         if name in self.subscriptions:
             raise MeteorClientException('Already subcribed to {}'.format(name))
@@ -79,6 +87,7 @@ class MeteorClient(object):
 
         Arguments:
         name - the name of the publication"""
+        self._wait_for_connect()
         if name not in self.subscriptions:
             raise MeteorClientException('No subscription for {}'.format(name))
         self.ddp_client.unsubscribe(self.subscriptions[name])
@@ -93,11 +102,53 @@ class MeteorClient(object):
         print '* CONNECTED'
 
     def closed(self, code, reason):
+        self.connected = False
         print '* CONNECTION CLOSED {} {}'.format(code, reason)
 
-
-    def failed(self, collection, code, reason):
+    def failed(self, data):
         print '* FAILED - data: {}'.format(str(data))
+
+    def added(self, collection, id, fields):
+        self.collection_data.add_data(collection, id, fields)
+        self.emit('added', collection, id, fields)
+
+    def changed(self, collection, id, fields, cleared):
+        self.collection_data.change_data(collection, id, fields, cleared)
+        self.emit('changed', collection, id, fields, cleared)
+
+    def removed(self, collection, id):
+        self.collection_data.remove_data(collection, id)
+        self.emit('removed', collection, id)
+
+    def find(self, collection, selector):
+        results = []
+        for _id, doc in self.collection_data.data.get(collection, {}).items():
+            doc.update({'_id': _id})
+            for key, value in selector.items():
+                if key in doc and doc[key] == value:
+                    results.append(doc)
+        return results
+
+    def find_one(self, collection, selector):
+        for _id, doc in self.collection_data.data.get(collection, {}).items():
+            doc.update({'_id': _id})
+            for key, value in selector.items():
+                if key in doc and doc[key] == value:
+                    return doc
+        return None
+
+    def insert(self, collection, data, callback):
+        self.call("/" + collection + "/insert", [data], callback=callback)
+
+    def update(self, collection):
+        pass
+
+    def remove(self, collection):
+        pass
+
+    #
+    # Helper functions
+    #
 
     def _time_from_start(self, start):
         now = datetime.datetime.now()
@@ -107,3 +158,11 @@ class MeteorClient(object):
         for name, cur_sub_id in self.subscriptions.items():
             if cur_sub_id == sub_id:
                 del self.subscriptions[name]
+
+    def _wait_for_connect(self):
+        start = datetime.datetime.now()
+        while not self.connected and self._time_from_start(start).seconds < 5:
+            time.sleep(0.1)
+
+        if not self.connected:
+            raise MeteorClientException('Could not subscribe because a connection has not been established')
