@@ -25,6 +25,7 @@ setup(name='python-meteor',
     ],
     py_modules=['MeteorClient'],
     install_requires=[
-        'python-ddp'
+        'python-ddp',
+        'hashlib'
     ],
 )

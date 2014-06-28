@@ -1,8 +1,10 @@
 import time
 import datetime
+
 from DDPClient import DDPClient
 
 from pyee import EventEmitter
+import hashlib
 
 class MeteorClientException(Exception):
     """Custom Exception"""
@@ -44,6 +46,32 @@ class MeteorClient(EventEmitter):
         self.connected = False
         self.ddp_client.connect()
         self.subscriptions = {}
+
+    #
+    # Account Management
+    #
+
+    def login(self, user, password, callback=None):
+        # TODO: keep the login token, user_id and tokenExpires
+        #       for reconnecting later
+        # hash the password
+        hashed = hashlib.sha256(password).hexdigest()
+        # handle username or email address
+        if '@' in user:
+            user_object = {
+                'email': user
+            }
+        else:
+            user_object = {
+                'username': user
+            }
+        password_object = {
+            'algorithm': 'sha-256',
+            'digest': hashed
+        }
+
+        self.ddp_client.call('login',[{'user': user_object,
+                             'password': password_object}],callback=callback)
 
     #
     # Meteor Method Call
@@ -99,11 +127,11 @@ class MeteorClient(EventEmitter):
 
     def connected(self):
         self.connected = True
-        print '* CONNECTED'
+        self.emit('connected')
 
     def closed(self, code, reason):
         self.connected = False
-        print '* CONNECTION CLOSED {} {}'.format(code, reason)
+        self.emit('closed', code, reason)
 
     def failed(self, data):
         print '* FAILED - data: {}'.format(str(data))
