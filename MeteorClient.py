@@ -120,31 +120,39 @@ class MeteorClient(EventEmitter):
         self.collection_data.remove_data(collection, id)
         self.emit('removed', collection, id)
 
-    def find(self, collection, selector):
+    #
+    # Collection Management
+    #
+
+    def find(self, collection, selector={}):
         results = []
         for _id, doc in self.collection_data.data.get(collection, {}).items():
             doc.update({'_id': _id})
+            if selector == {}:
+                results.append(doc)
             for key, value in selector.items():
                 if key in doc and doc[key] == value:
                     results.append(doc)
         return results
 
-    def find_one(self, collection, selector):
+    def find_one(self, collection, selector={}):
         for _id, doc in self.collection_data.data.get(collection, {}).items():
             doc.update({'_id': _id})
+            if selector == {}:
+                return doc
             for key, value in selector.items():
                 if key in doc and doc[key] == value:
                     return doc
         return None
 
-    def insert(self, collection, data, callback):
+    def insert(self, collection, data, callback=None):
         self.call("/" + collection + "/insert", [data], callback=callback)
 
-    def update(self, collection):
-        pass
+    def update(self, collection, selector, data, callback=None):
+        self.call("/" + collection + "/update", [selector, data], callback=callback)
 
-    def remove(self, collection):
-        pass
+    def remove(self, collection, selector, callback=None):
+        self.call("/" + collection + "/remove", [selector], callback=callback)
 
     #
     # Helper functions
