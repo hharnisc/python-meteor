@@ -5,14 +5,14 @@ from setuptools import setup
 with open('README.md') as f:
     readme = f.read()
 
-setup(name='meteor-ddp',
+setup(name='python-meteor',
     version='0.1.0',
     description='An event driven meteor client',
     long_description=readme,
     license='MIT',
     author='Harrison Harnisch',
     author_email='hharnisc@gmail.com',
-    url='https://github.com/hharnisc/meteor-ddp',
+    url='https://github.com/hharnisc/python-meteor',
     keywords = ["meteor", "ddp", "events", "emitter", "node.js", "node", "eventemitter", "event_emitter"],
     classifiers = [
         "Programming Language :: Python",
