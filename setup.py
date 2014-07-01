@@ -6,7 +6,7 @@ with open('README.md') as f:
     readme = f.read()
 
 setup(name='python-meteor',
-    version='0.1.0',
+    version='0.1.1',
     description='An event driven meteor client',
     long_description=readme,
     license='MIT',
@@ -25,7 +25,6 @@ setup(name='python-meteor',
     ],
     py_modules=['MeteorClient'],
     install_requires=[
-        'python-ddp',
-        'hashlib'
+        'python-ddp'
     ],
 )
