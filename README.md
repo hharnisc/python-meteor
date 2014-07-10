@@ -17,7 +17,15 @@ $ pip install python-meteor
 
 ## History
 
-**Latest Version** 0.1.0
+**Latest Version** 0.1.2
+
+- Implemented auto reconnect (auto reconnect on by default) and reconnected event emitter
+
+**Version** 0.1.1
+
+- Fixed bug in setup, was including built in hashlib
+
+**Version** 0.1.0
 
 - Initial implementation, add ability to call, subscribe, unsubscribe, do basic queries and login
 - Data is stored in a local python dictionary (in memory) and updated in real time as collection change events are received. This allows for very a basic find and find_one APIs to be implemented.
@@ -37,6 +45,24 @@ $ pip install python-meteor
 from MeteorClient import MeteorClient
 
 client = MeteorClient('ws://127.0.0.1:3000/websocket')
+client.connect()
+```
+
+**Establish A Connection Without Auto Reconnect**
+
+```python
+from MeteorClient import MeteorClient
+
+client = MeteorClient('ws://127.0.0.1:3000/websocket', auto_reconnect=False)
+client.connect()
+```
+
+**Establish A Connection And With Reconnect Different Frequency**
+
+```python
+from MeteorClient import MeteorClient
+# try to reconnect every second
+client = MeteorClient('ws://127.0.0.1:3000/websocket', auto_reconnect=True, auto_reconnect_timeout=1)
 client.connect()
 ```
 
@@ -124,6 +150,20 @@ def remove_callback(error, data):
 client.remove('posts', {'title': 'Google'}, callback=remove_callback)
 ```
 ## Usage
+
+### Class Init
+
+####DDPClient(url, auto_reconnect=True, auto_reconnect_timeout=0.5, debug=False)
+
+**Arguments**
+
+_url_ - to connect to ddp server
+
+**Keyword Arguments**
+
+_auto_reconnect_ - automatic reconnect (default: True)  
+_auto_reconnect_timeout_ - reconnect every X seconds (default: 0.5)  
+_debug_ - print out lots of debug info (default: False)  
      
 ### Functions
 
@@ -291,6 +331,17 @@ client.on('closed', closed)
 _code_ - the error code  
 _reason_ - the error message  
 
+### reconnected
+
+```python
+def reconnected(self):
+    print '* RECONNECTED'
+
+client.on('reconnected', reconnected)
+```
+
+`reconnected` call back takes no arguments
+
 #### failed
 
 Register the event to a callback function
@@ -441,6 +492,7 @@ For reference
 ```python
 client.on('connected', connected)
 client.on('socket_closed', closed)
+client.on('reconnected', reconnected)
 client.on('failed', failed)
 client.on('added', added)
 client.on('changed', changed)

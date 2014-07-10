@@ -33,23 +33,53 @@ class CollectionData(object):
         del self.data[collection][id]
 
 class MeteorClient(EventEmitter):
-    def __init__(self, url, debug=False):
+    def __init__(self, url, auto_reconnect=True, auto_reconnect_timeout=0.5, debug=False):
         EventEmitter.__init__(self)
         self.collection_data = CollectionData()
-        self.ddp_client = DDPClient(url, debug)
+        self.ddp_client = DDPClient(url, auto_reconnect=auto_reconnect,
+                                    auto_reconnect_timeout=auto_reconnect_timeout, debug=debug)
         self.ddp_client.on('connected', self.connected)
         self.ddp_client.on('socket_closed', self.closed)
         self.ddp_client.on('failed', self.failed)
         self.ddp_client.on('added', self.added)
         self.ddp_client.on('changed', self.changed)
         self.ddp_client.on('removed', self.removed)
+        self.ddp_client.on('reconnected', self._reconnected)
         self.connected = False
         self.subscriptions = {}
+        self._login_data = None
 
     def connect(self):
         """Connect to the meteor server"""
         self.ddp_client.connect()
 
+    def close(self):
+        """Close connection with meteor server"""
+        self.ddp_client.close()
+
+    def _reconnected(self):
+        """Reconnect
+
+        Currently we get a new session every time so we have
+        to clear all the data an resubscribe"""
+
+        if self._login_data:
+            def reconnect_login_callback(error, result):
+                if error:
+                    raise MeteorClientException('Failed to re-authenticate during reconnect')
+                    return
+                self._resubscribe()
+            self.ddp_client.call('login', self._login_data, callback=reconnect_login_callback)
+        else:
+            self._resubscribe()
+
+    def _resubscribe(self):
+        self.collection_data.data = {}
+        cur_subs = self.subscriptions.items()
+        self.subscriptions = {}
+        for name, value in cur_subs:
+            self.subscribe(name, value['params'])
+        self.emit('reconnected')
     #
     # Account Management
     #
@@ -63,8 +93,8 @@ class MeteorClient(EventEmitter):
 
         Keyword Arguments:
         callback - callback function containing error as first argument and login data"""
-        # TODO: keep the login token, user_id and tokenExpires
-        #       for reconnecting later
+        # TODO: keep the tokenExpires around so we know the next time
+        #       we need to authenticate
         self.emit('logging_in')
         def logged_in(error, data):
             if error:
@@ -90,9 +120,8 @@ class MeteorClient(EventEmitter):
             'algorithm': 'sha-256',
             'digest': hashed
         }
-
-        self.ddp_client.call('login',[{'user': user_object,
-                             'password': password_object}],callback=callback)
+        self._login_data = [{'user': user_object, 'password': password_object}]
+        self.ddp_client.call('login', self._login_data, callback=callback)
 
     def logout(self, callback=None):
         """Logout a user
@@ -146,7 +175,10 @@ class MeteorClient(EventEmitter):
             raise MeteorClientException('Already subcribed to {}'.format(name))
 
         sub_id = self.ddp_client.subscribe(name, params, subscribed)
-        self.subscriptions[name] = sub_id
+        self.subscriptions[name] = {
+            'id': sub_id,
+            'params': params
+        }
 
     def unsubscribe(self, name):
         """Unsubscribe from a collection
