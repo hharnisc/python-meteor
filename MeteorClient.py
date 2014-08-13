@@ -26,7 +26,7 @@ class CollectionData(object):
         for key, value in fields.items():
             self.data[collection][id][key] = value
 
-        for key, value in cleared.items():
+        for key in cleared:
             del self.data[collection][id][key]
 
     def remove_data(self, collection, id):
