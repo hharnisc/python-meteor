@@ -14,10 +14,15 @@ $ pip install python-meteor
 - [TODO](#TODO)
 - [Quick Start](#quick-start)
 - [Usage](#usage)
+- [Collaborators](#collaborators)
 
 ## History
 
-**Latest Version** 0.1.2
+**Latest Version** 0.1.3
+
+- Fixed a bug that was causing a crash while removing a field on a change event (thanks [@ppettit](https://github.com/ppettit))
+
+**Version** 0.1.2
 
 - Implemented auto reconnect (auto reconnect on by default) and reconnected event emitter
 
@@ -503,3 +508,7 @@ client.on('logging_in', logging_in)
 client.on('logged_in', logged_in)
 client.on('logged_out', logged_out)
 ```
+
+##Collaborators
+
+- [@ppettit](https://github.com/ppettit)
