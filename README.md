@@ -91,7 +91,7 @@ def subscription_callback(error):
     if error:
         print error
 
-client.subscribe('posts', subscription_callback)
+client.subscribe('posts', callback=subscription_callback)
 client.unsubscribe('posts')
 ```
 
