@@ -14,6 +14,7 @@ $ pip install python-meteor
 - [TODO](#TODO)
 - [Quick Start](#quick-start)
 - [Usage](#usage)
+- [Example](#example)
 - [Collaborators](#collaborators)
 
 ## History
@@ -507,6 +508,23 @@ client.on('unsubscribed', unsubscribed)
 client.on('logging_in', logging_in)
 client.on('logged_in', logged_in)
 client.on('logged_out', logged_out)
+```
+
+##Example
+
+There is an included `example.py` script to use with the `todo` sample app included with meteor
+
+Create the sample meteor app and start it
+
+```bash
+$ meteor create --example todos
+$ meteor
+```
+
+Then run example.py
+
+```bash
+$ python example.py
 ```
 
 ##Collaborators
