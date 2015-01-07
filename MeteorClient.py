@@ -121,7 +121,7 @@ class MeteorClient(EventEmitter):
             'digest': hashed
         }
         self._login_data = [{'user': user_object, 'password': password_object}]
-        self.ddp_client.call('login', self._login_data, callback=callback)
+        self.ddp_client.call('login', self._login_data, callback=logged_in)
 
     def logout(self, callback=None):
         """Logout a user
