@@ -68,6 +68,7 @@ class MeteorClient(EventEmitter):
                 if error:
                     raise MeteorClientException('Failed to re-authenticate during reconnect')
                     return
+                self.connected = True
                 self._resubscribe()
             self.ddp_client.call('login', self._login_data, callback=reconnect_login_callback)
         else:
