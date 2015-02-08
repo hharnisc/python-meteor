@@ -19,7 +19,13 @@ $ pip install python-meteor
 
 ## History
 
-**Latest Version** 0.1.3
+**Latest Version** 0.1.4
+
+- BUGFIX - update connected status when reconnecting (thanks [@ppettit](https://github.com/ppettit))
+- BUGFIX - make sure `logged_in` callback get's fired (thanks [@pmgration](https://github.com/pmgration))
+- NOTE: python-ddp library has been updated that addresses connection problems
+
+**Version** 0.1.3
 
 - Fixed a bug that was causing a crash while removing a field on a change event (thanks [@ppettit](https://github.com/ppettit))
 
@@ -530,3 +536,4 @@ $ python example.py
 ##Collaborators
 
 - [@ppettit](https://github.com/ppettit)
+- [@pmgration](https://github.com/pmgration)
