@@ -6,23 +6,23 @@ client = MeteorClient('ws://127.0.0.1:3000/websocket')
 
 
 def subscribed(subscription):
-    print('* SUBSCRIBED {}').format(subscription)
+    print('* SUBSCRIBED {}'.format(subscription))
 
 
 def unsubscribed(subscription):
-    print('* UNSUBSCRIBED {}').format(subscription)
+    print('* UNSUBSCRIBED {}'.format(subscription))
 
 
 def added(collection, id, fields):
-    print('* ADDED {} {}').format(collection, id)
+    print('* ADDED {} {}'.format(collection, id))
     for key, value in fields.items():
-        print('  - FIELD {} {}').format(key, value)
+        print('  - FIELD {} {}'.format(key, value))
 
     # query the data each time something has been added to
     # a collection to see the data `grow`
     all_lists = client.find('lists', selector={})
-    print('Lists: {}').format(all_lists)
-    print('Num lists: {}').format(len(all_lists))
+    print('Lists: {}'.format(all_lists))
+    print('Num lists: {}'.format(len(all_lists)))
 
     # if collection == 'list' you could subscribe to the list here
     # with something like
