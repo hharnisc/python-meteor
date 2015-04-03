@@ -83,10 +83,10 @@ client.connect()
 ```python
 def callback_function(error, result):
     if error:
-        print error
+        print(error)
         return
 
-    print result
+    print(result)
 
 client.call('someFunction', [1, 2, 3], callback_function)
 ```
@@ -96,7 +96,7 @@ client.call('someFunction', [1, 2, 3], callback_function)
 ```python
 def subscription_callback(error):
     if error:
-        print error
+        print(error)
 
 client.subscribe('posts', callback=subscription_callback)
 client.unsubscribe('posts')
@@ -131,9 +131,9 @@ one_post = client.find_one('posts', selector={'author': 'Sacha Greif'})
 ```python
 def insert_callback(error, data):
     if error:
-        print error
+        print(error)
         return
-    print data
+    print(data)
 
 client.insert('posts', {'title': 'Google', 'url': 'https://google.com', 'comments': 'Search'}, callback=insert_callback)
 ```
@@ -143,9 +143,9 @@ client.insert('posts', {'title': 'Google', 'url': 'https://google.com', 'comment
 ```python
 def update_callback(error, data):
     if error:
-        print error
+        print(error)
         return
-    print data
+    print(data)
 
 client.update('posts', {'title': 'Google'}, {'comments': 'Google main page'}, callback=update_callback)
 ```
@@ -155,9 +155,9 @@ client.update('posts', {'title': 'Google'}, {'comments': 'Google main page'}, ca
 ```python
 def remove_callback(error, data):
     if error:
-        print error
+        print(error)
         return
-    print data
+    print(data)
 
 client.remove('posts', {'title': 'Google'}, callback=remove_callback)
 ```
@@ -320,7 +320,7 @@ Register the event to a callback function
 
 ```python
 def connected(self):
-    print '* CONNECTED'
+    print('* CONNECTED')
 
 client.on('connected', connected)
 ```
@@ -333,7 +333,7 @@ Register the event to a callback function
 
 ```python
 def closed(self, code, reason):
-    print '* CONNECTION CLOSED {} {}'.format(code, reason)
+    print('* CONNECTION CLOSED {} {}').format(code, reason)
 
 client.on('closed', closed)
 ```
@@ -347,7 +347,7 @@ _reason_ - the error message
 
 ```python
 def reconnected(self):
-    print '* RECONNECTED'
+    print('* RECONNECTED')
 
 client.on('reconnected', reconnected)
 ```
@@ -360,7 +360,7 @@ Register the event to a callback function
 
 ```python
 def failed(collection, data):
-    print '* FAILED - data: {}'.format(str(data))
+    print('* FAILED - data: {}').format(str(data))
 
 client.on('failed', failed)
 ```
@@ -375,9 +375,9 @@ Register the event to a callback function
 
 ```python
 def added(collection, id, fields):
-    print '* ADDED {} {}'.format(collection, id)
+    print('* ADDED {} {}').format(collection, id)
     for key, value in fields.items():
-        print '  - FIELD {} {}'.format(key, value)
+        print('  - FIELD {} {}').format(key, value)
 
 client.on('added', added)
 ```
@@ -394,11 +394,11 @@ Register the event to a callback function
 
 ```python
 def changed(self, collection, id, fields, cleared):
-    print '* CHANGED {} {}'.format(collection, id)
+    print('* CHANGED {} {}').format(collection, id)
     for key, value in fields.items():
-        print '  - FIELD {} {}'.format(key, value)
+        print('  - FIELD {} {}').format(key, value)
     for key, value in cleared.items():
-        print '  - CLEARED {} {}'.format(key, value)
+        print('  - CLEARED {} {}').format(key, value)
 
 client.on('changed', changed)
 ```
@@ -416,7 +416,7 @@ Register the event to a callback function
 
 ```python
 def removed(collection, id):
-    print '* REMOVED {} {}'.format(collection, id)
+    print('* REMOVED {} {}').format(collection, id)
 
 client.on('removed', removed)
 ```
@@ -432,7 +432,7 @@ Register the event to a callback function
 
 ```python
 def subscribed(subscription):
-    print '* SUBSCRIBED {}'.format(subscription)
+    print('* SUBSCRIBED {}').format(subscription)
 
 client.on('subscribed', subscribed)
 ```
@@ -447,7 +447,7 @@ Register the event to a callback function
 
 ```python
 def unsubscribed(subscription):
-    print '* UNSUBSCRIBED {}'.format(subscription)
+    print('* UNSUBSCRIBED {}').format(subscription)
 
 client.on('unsubscribed', unsubscribed)
 ```
@@ -462,7 +462,7 @@ Register the event to a callback function
 
 ```python
 def logging_in():
-    print '* LOGGIN IN'
+    print('* LOGGIN IN')
 
 client.on('logging_in', logging_in)
 ```
@@ -475,7 +475,7 @@ Register the event to a callback function
 
 ```python
 def logged_in(data):
-    print '* LOGGED IN {}'.format(data)
+    print('* LOGGED IN {}').format(data)
 
 client.on('logged_in', logged_in)
 ```
@@ -490,7 +490,7 @@ Register the event to a callback function
 
 ```python
 def logged_out():
-    print '* LOGGED OUT'
+    print('* LOGGED OUT')
 
 client.on('logged_out', logged_out)
 ```
