@@ -6,14 +6,14 @@ with open('README.md') as f:
     readme = f.read()
 
 setup(name='python-meteor',
-    version='0.1.4',
+    version='0.1.5',
     description='An event driven meteor client',
     long_description=readme,
     license='MIT',
     author='Harrison Harnisch',
     author_email='hharnisc@gmail.com',
     url='https://github.com/hharnisc/python-meteor',
-    keywords = ["meteor", "ddp", "events", "emitter", "node.js", "node", "eventemitter", "event_emitter"],
+    keywords = ["meteor", "ddp", "events", "emitter", "node.js", "node", "eventemitter", "event_emitter", "ejson"],
     classifiers = [
         "Programming Language :: Python",
         "Development Status :: 2 - Pre-Alpha",

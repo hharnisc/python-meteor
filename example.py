@@ -45,7 +45,7 @@ client.on('added', added)
 client.on('connected', connected)
 
 client.connect()
-client.subscribe('lists')
+client.subscribe('publicLists')
 
 
 # (sort of) hacky way to keep the client alive
@@ -55,3 +55,5 @@ while True:
         time.sleep(1)
     except KeyboardInterrupt:
         break
+
+client.unsubscribe('publicLists')
