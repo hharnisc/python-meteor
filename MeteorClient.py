@@ -189,7 +189,7 @@ class MeteorClient(EventEmitter):
         self._wait_for_connect()
         if name not in self.subscriptions:
             raise MeteorClientException('No subscription for {}'.format(name))
-        self.ddp_client.unsubscribe(self.subscriptions[name])
+        self.ddp_client.unsubscribe(self.subscriptions[name]['id'])
         del self.subscriptions[name]
         self.emit('unsubscribed', name)
 
