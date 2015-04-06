@@ -398,7 +398,7 @@ _fields_ - the fields for item
 Register the event to a callback function
 
 ```python
-def changed(self, collection, id, fields, cleared):
+def changed(collection, id, fields, cleared):
     print('* CHANGED {} {}'.format(collection, id))
     for key, value in fields.items():
         print('  - FIELD {} {}'.format(key, value))
