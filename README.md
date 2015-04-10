@@ -181,16 +181,17 @@ _url_ - to connect to ddp server
 _auto_reconnect_ - automatic reconnect (default: True)  
 _auto_reconnect_timeout_ - reconnect every X seconds (default: 0.5)  
 _debug_ - print out lots of debug info (default: False)  
-     
+
 ### Functions
 
 ####connect()
 
 Connect to the meteor server
 
-####login(user, password, callback=None)
+####login(user, password, token=token, callback=None)
 
-Login with a username and password
+Login with a username and password. If a token is provided it will be tried first, falling back to username and password if
+the token is invalid.
 
 **Arguments**
 
@@ -199,6 +200,7 @@ _password_ - the password for the account
 
 **Keyword Arguments**
 
+_token_ - meteor resume token
 _callback_ - callback function containing error as first argument and login data  
 
 ####logout(callback=None)
