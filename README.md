@@ -19,12 +19,16 @@ $ pip install python-meteor
 
 ## History
 
-**Latest Version** 0.1.5
+**Latest Version** 0.1.6
+
+- Add support for meteor login resume tokens (thanks [@ppettit](https://github.com/ppettit))
+
+**Version** 0.1.5
 
 - BUGFIX - unsubscribe was not unsubcribing (missing sub ID) (thanks [@tdamsma](https://github.com/tdamsma))
 - examples and docs support python 3
 
-**Latest** 0.1.4
+**Version** 0.1.4
 
 - BUGFIX - update connected status when reconnecting (thanks [@ppettit](https://github.com/ppettit))
 - BUGFIX - make sure `logged_in` callback get's fired (thanks [@pmgration](https://github.com/pmgration))
