@@ -48,6 +48,7 @@ class MeteorClient(EventEmitter):
         self.connected = False
         self.subscriptions = {}
         self._login_data = None
+        self._login_token = None
 
     def connect(self):
         """Connect to the meteor server"""
@@ -63,14 +64,28 @@ class MeteorClient(EventEmitter):
         Currently we get a new session every time so we have
         to clear all the data an resubscribe"""
 
-        if self._login_data:
+        if self._login_data or self._login_token:
+
             def reconnect_login_callback(error, result):
                 if error:
-                    raise MeteorClientException('Failed to re-authenticate during reconnect')
-                    return
+                    if self._login_token:
+                        self._login_token = None
+                        self._login(self._login_data,
+                                    callback=reconnect_login_callback)
+                        return
+                    else:
+                        raise MeteorClientException(
+                            'Failed to re-authenticate during reconnect')
+
                 self.connected = True
                 self._resubscribe()
-            self.ddp_client.call('login', self._login_data, callback=reconnect_login_callback)
+
+            if self._login_token:
+                self._resume(self._login_token,
+                             callback=reconnect_login_callback)
+            else:
+                self._login(self._login_data,
+                            callback=reconnect_login_callback)
         else:
             self._resubscribe()
 
@@ -85,7 +100,7 @@ class MeteorClient(EventEmitter):
     # Account Management
     #
 
-    def login(self, user, password, callback=None):
+    def login(self, user, password, token=None, callback=None):
         """Login with a username and password
 
         Arguments:
@@ -93,18 +108,10 @@ class MeteorClient(EventEmitter):
         password - the password for the account
 
         Keyword Arguments:
+        token - meteor resume token
         callback - callback function containing error as first argument and login data"""
         # TODO: keep the tokenExpires around so we know the next time
         #       we need to authenticate
-        self.emit('logging_in')
-        def logged_in(error, data):
-            if error:
-                if callback:
-                    callback(error, None)
-                return
-            if callback:
-                callback(None, data)
-            self.emit('logged_in', data)
 
         # hash the password
         hashed = hashlib.sha256(password).hexdigest()
@@ -121,8 +128,39 @@ class MeteorClient(EventEmitter):
             'algorithm': 'sha-256',
             'digest': hashed
         }
-        self._login_data = [{'user': user_object, 'password': password_object}]
-        self.ddp_client.call('login', self._login_data, callback=logged_in)
+
+        self._login_token = token
+        self._login_data = {'user': user_object, 'password': password_object}
+
+        if token:
+            self._resume(token, callback=callback)
+        else:
+            self._login(self._login_data, callback=callback)
+
+    def _resume(self, token, callback=None):
+        login_data = {'resume': token}
+        self._login(login_data, callback=callback)
+
+    def _login(self, login_data, callback=None):
+        self.emit('logging_in')
+
+        def logged_in(error, data):
+            if error:
+                if self._login_token:
+                    self._login_token = None
+                    self._login(self._login_data, callback=callback)
+                    return
+                if callback:
+                    callback(error, None)
+                return
+
+            self._login_token = data['token']
+
+            if callback:
+                callback(None, data)
+            self.emit('logged_in', data)
+
+        self.ddp_client.call('login', [login_data], callback=logged_in)
 
     def logout(self, callback=None):
         """Logout a user
